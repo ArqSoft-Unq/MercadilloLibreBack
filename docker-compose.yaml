@@ -1,0 +1,11 @@
+version: '3.6'
+services:
+  app:
+    container_name: mercadillo
+    build: ./
+    volumes:
+      - ./:/MercadilloLibreBack
+    ports: 
+      - 8080:8080 
+    expose:
+      - 8080
