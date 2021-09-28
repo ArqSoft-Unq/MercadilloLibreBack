@@ -6,6 +6,6 @@ services:
     volumes:
       - ./:/MercadilloLibreBack
     ports: 
-      - 8080:8080 
+      - "8080:8080"
     expose:
       - 8080
