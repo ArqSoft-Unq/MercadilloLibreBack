@@ -1,11 +1,8 @@
-FROM openjdk:12-jdk-alpine
-
-RUN apk add --no-cache bash
+FROM gradle:7.2.0-jdk11
 
 WORKDIR /MercadilloLibreBack
 
 ADD gradle /MercadilloLibreBack/gradle
 COPY gradlew ./
-COPY gradlew.bat ./
 
-RUN ./gradlew run
+RUN gradle -q bootRun

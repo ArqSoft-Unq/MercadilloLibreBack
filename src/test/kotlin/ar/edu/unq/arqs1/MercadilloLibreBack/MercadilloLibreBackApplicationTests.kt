@@ -1,10 +1,10 @@
-package com.arqunq.mercadillolibre
+package ar.edu.unq.arqs1.MercadilloLibreBack
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class MercadillolibreApplicationTests {
+class MercadilloLibreBackApplicationTests {
 
 	@Test
 	fun contextLoads() {
