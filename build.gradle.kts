@@ -29,6 +29,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -53,10 +54,15 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+
 flyway {
 	url = System.getenv("JDBC_DATABASE_URL")
 	user = System.getenv("JDBC_DATABASE_USERNAME")
 	password = System.getenv("JDBC_DATABASE_PASSWORD")
 	baselineOnMigrate = true
 	locations = arrayOf("filesystem: resources / db / migration")
+}
+
+springBoot {
+	buildInfo()
 }
