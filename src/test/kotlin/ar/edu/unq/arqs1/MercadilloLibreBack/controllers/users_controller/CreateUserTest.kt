@@ -85,7 +85,7 @@ class CreateUserTest : ApplicationTest() {
 
         assertEquals(HttpStatus.OK, result.statusCode)
         assertNotNull(result.body)
-        assertNotNull(result.body!!.name)
+        assertNotNull(result.body!!.id)
         assertEquals(user.name, result.body!!.name)
         assertEquals(user.lastname, result.body!!.lastname)
         assertEquals(user.email, result.body!!.email)

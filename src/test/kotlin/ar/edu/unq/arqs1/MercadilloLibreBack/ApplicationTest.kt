@@ -1,5 +1,7 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.DatabaseCleanup
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,11 +24,19 @@ class ApplicationTest {
     @Autowired
     protected lateinit var restTemplate: TestRestTemplate
 
+    @Autowired
+    private lateinit var databaseCleanup: DatabaseCleanup
+
     @LocalServerPort
     var serverPort: Int = 0
 
     @TestConfiguration
     internal class ControllerTestConfig {
         //Here we should add all the beans that we'll need only for testing
+    }
+
+    @AfterEach
+    fun cleanupDatabase() {
+        databaseCleanup.truncate()
     }
 }
