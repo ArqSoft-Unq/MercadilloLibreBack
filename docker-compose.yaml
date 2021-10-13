@@ -1,11 +1,30 @@
 version: '3.6'
 services:
-  app:
-    container_name: mercadillo
-    build: ./
+  backend:
+    depends_on:
+      - db
+    image: gradle:7.2.0-jdk11
+    ports:
+      - 8080:8080
     volumes:
-      - ./:/MercadilloLibreBack
-    ports: 
-      - "8080:8080"
-    expose:
-      - 8080
+      - .:/home/gradle/project
+    working_dir: /home/gradle/project
+    environment:
+      JDBC_DATABASE_URL: 'jdbc:postgresql://db:5432/mercadillo_back_db'
+      JDBC_DATABASE_USERNAME: postgres
+      JDBC_DATABASE_PASSWORD: postgres
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url":"jdbc:postgresql://db:5432/mercadillo_back_db",
+        "spring.datasource.username":"postgres",
+        "spring.datasource.password":"postgres",
+        "spring.jpa.properties.hibernate.dialect":"org.hibernate.dialect.PostgreSQLDialect",
+        "spring.jpa.hibernate.ddl-auto":"update"
+      }'
+    command: 'gradle bootRun'
+  db:
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRESQL_USER: postgres
+      POSTGRES_PASSWORD: postgres
