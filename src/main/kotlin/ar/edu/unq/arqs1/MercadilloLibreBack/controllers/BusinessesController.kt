@@ -13,9 +13,10 @@ import javax.validation.Valid
 class BusinessesController(private val businessService: BusinessService) {
     @PostMapping
     fun addUser(@RequestBody @Valid business: Business): ResponseEntity<Business> =
-        businessService.addBusiness(business)
+        ResponseEntity.ok(businessService.addBusiness(business))
 
     @GetMapping("/{id}")
     fun getUser(@PathVariable(value = "id") businessId: Long): ResponseEntity<Business> =
-        businessService.getBusinessById(businessId)
+        businessService.getBusinessById(businessId).map { businesses -> ResponseEntity.ok(businesses) }
+            .orElse(ResponseEntity.notFound().build())
 }

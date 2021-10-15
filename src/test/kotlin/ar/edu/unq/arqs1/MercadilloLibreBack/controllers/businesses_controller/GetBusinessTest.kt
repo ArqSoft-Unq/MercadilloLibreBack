@@ -15,13 +15,13 @@ class GetBusinessTest : ApplicationTest() {
     lateinit var businessesRepository: BusinessesRepository
 
     @Test
-    fun whenTheUserIdIsNotFromAnExistentUser_thenReturnsStatus404() {
+    fun whenTheUserIdIsNotFromAnExistentBusiness_thenReturnsStatus404() {
         val result = restTemplate.getForEntity("/v1/businesses/1", Business::class.java)
         assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
     }
 
     @Test
-    fun whenTheUserIdIsFromAnExistentUser_thenReturnsStatus200() {
+    fun whenTheUserIdIsFromAnExistentBusiness_thenReturnsStatus200() {
         val business = businessesRepository.save(Business(name = "name", email = "email@email.com"))
         val result = restTemplate.getForEntity("/v1/businesses/${business.id}", Business::class.java)
 
