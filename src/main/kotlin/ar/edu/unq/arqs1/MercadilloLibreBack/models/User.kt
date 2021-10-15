@@ -21,5 +21,6 @@ class User (
 
     @get:Email(message = "It must be a valid email")
     @get:NotEmpty(message = "The email is required")
+    @Column(unique = true)
     val email: String? = null,
 )
