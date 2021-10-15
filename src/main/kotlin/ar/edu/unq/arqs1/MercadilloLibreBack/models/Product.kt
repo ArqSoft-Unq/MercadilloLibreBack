@@ -32,4 +32,7 @@ class Product (
     @OneToOne(optional = false)
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     var seller: Business? = null,
+
+    @Column(name="active")
+    var isActive: Boolean = true
 )

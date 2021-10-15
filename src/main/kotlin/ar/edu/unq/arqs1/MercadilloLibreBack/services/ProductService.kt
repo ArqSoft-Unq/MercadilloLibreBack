@@ -29,10 +29,10 @@ class ProductService(private val productsRepository: ProductsRepository) {
        }
     }
 
-    fun deleteProduct(id: Long): Optional<Product> {
-        // usar el flag de active en lugar de borrar
-        val maybeProduct = getProductById(id)
-        maybeProduct.ifPresent { product -> productsRepository.delete(product) }
-        return maybeProduct
-    }
+    fun deleteProduct(id: Long): Optional<Product> =
+        getProductById(id).map { product ->
+            product.isActive = false
+            productsRepository.save(product)
+            product
+        }
 }

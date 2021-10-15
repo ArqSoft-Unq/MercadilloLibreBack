@@ -29,7 +29,11 @@ class GetProductTest : ApplicationTest() {
     @Test
     fun whenTheUserIdIsFromAnExistentProduct_thenReturnsStatus200() {
         val business = businessesRepository.save(Business(name = "name", email = "email@email.co"))
-        val product = productsRepository.save(Product(name = "name", description = "something", price = 10, stock = 10, seller = business))
+        val product = productsRepository.save(Product(
+            name = "name", description = "something",
+            price = 10, stock = 10, seller = business,
+            isActive = true
+        ))
         val result = restTemplate.getForEntity("/v1/products/${product.id}", Product::class.java)
 
         assertEquals(HttpStatus.OK, result.statusCode)
