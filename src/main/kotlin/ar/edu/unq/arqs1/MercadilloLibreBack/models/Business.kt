@@ -19,4 +19,7 @@ class Business (
     @get:Email(message = "It must be a valid email")
     @get:NotEmpty(message = "The email is required")
     val email: String? = null,
+
+    @get:NotEmpty(message = "The password is required")
+    val password: String? = null,
 )

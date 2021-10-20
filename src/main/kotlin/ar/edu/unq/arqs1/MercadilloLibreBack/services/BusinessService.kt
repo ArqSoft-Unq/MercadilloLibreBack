@@ -9,4 +9,5 @@ import java.util.*
 class BusinessService(private val businessesRepository: BusinessesRepository) {
     fun addBusiness(business: Business): Business = businessesRepository.save(business)
     fun getBusinessById(businessId: Long): Optional<Business> = businessesRepository.findById(businessId)
+    fun getBusinessByEmailAndPassword( email:String, password:String): Optional<Business> = businessesRepository.findByEmailAndPassword(email,password)
 }

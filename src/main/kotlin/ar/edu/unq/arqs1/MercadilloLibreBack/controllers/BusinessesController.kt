@@ -26,4 +26,13 @@ class BusinessesController(private val businessService: BusinessService) {
     fun getUser(@PathVariable(value = "id") businessId: Long): ResponseEntity<Business> =
         businessService.getBusinessById(businessId).map { businesses -> ResponseEntity.ok(businesses) }
             .orElse(ResponseEntity.notFound().build())
+
+    @PostMapping("/login")
+    fun getUserByEmailAndPassword(@RequestBody  business: Map<String,String>):ResponseEntity<Business> =
+            businessService.getBusinessByEmailAndPassword(
+                business["email"]!!,
+                business["password"]!!).map { businesses -> ResponseEntity.ok(businesses) }
+            .orElse(ResponseEntity.notFound().build())
+        
+    
 }
