@@ -4,7 +4,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -22,7 +22,9 @@ class CreateProductTest : ApplicationTest() {
 
     @BeforeEach
     fun setUp() {
-        seller = businessesRepository.save(Business(name = "name", email = "email@email.com"))
+        seller = businessesRepository.save(
+            Business(name = "name", email = "email@email.com", encryptedPassword = "sarlanga")
+        )
     }
 
     fun createProduct(product: NewProduct) : ResponseEntity<Product> =

@@ -1,4 +1,4 @@
-package ar.edu.unq.arqs1.MercadilloLibreBack.repositories
+package ar.edu.unq.arqs1.MercadilloLibreBack.repositories.user
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
 import org.springframework.data.jpa.repository.JpaRepository

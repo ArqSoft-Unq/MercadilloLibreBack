@@ -2,7 +2,7 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -22,7 +22,8 @@ class GetBusinessTest : ApplicationTest() {
 
     @Test
     fun whenTheUserIdIsFromAnExistentBusiness_thenReturnsStatus200() {
-        val business = businessesRepository.save(Business(name = "name", email = "email@email.com"))
+        val business = businessesRepository.save(
+            Business(name = "name", email = "email@email.com", encryptedPassword = "sarlanga"))
         val result = restTemplate.getForEntity("/v1/businesses/${business.id}", Business::class.java)
 
         assertEquals(HttpStatus.OK, result.statusCode)

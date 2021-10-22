@@ -4,8 +4,8 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.BusinessesRepository
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.ProductsRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +26,10 @@ class UpdateProductTest : ApplicationTest() {
 
     @BeforeEach
     fun setUp() {
-        seller = businessesRepository.save(Business(name = "name", email = "email@email.com"))
+        seller = businessesRepository.save(Business(
+            name = "name", email = "email@email.com", encryptedPassword = "sarlanga")
+        )
+
         product = productsRepository.save(Product(
             name = "product", description = "descrption",
             price = 10, stock = 10, seller = seller, isActive = true

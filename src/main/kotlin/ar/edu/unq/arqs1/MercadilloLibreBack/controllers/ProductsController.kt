@@ -25,9 +25,9 @@ class ProductsController(private val productsService: ProductService, private va
 
     @DeleteMapping("/{id}")
     fun deleteProduct(@PathVariable(value="id") productId: Long): ResponseEntity<Nothing> =
-            productsService.deleteProduct(productId)
-                .map { ResponseEntity.ok(null) }
-                .orElse(ResponseEntity.notFound().build())
+        productsService.deleteProduct(productId)
+            .map { ResponseEntity.ok(null) }
+            .orElse(ResponseEntity.notFound().build())
 
     @PutMapping("/{id}")
     fun updateProduct(

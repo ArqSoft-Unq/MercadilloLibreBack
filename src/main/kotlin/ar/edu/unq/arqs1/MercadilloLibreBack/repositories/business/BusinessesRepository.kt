@@ -1,4 +1,4 @@
-package ar.edu.unq.arqs1.MercadilloLibreBack.repositories
+package ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import org.springframework.data.jpa.repository.JpaRepository
@@ -10,7 +10,5 @@ import javax.transaction.Transactional
 @Repository
 @Transactional(Transactional.TxType.MANDATORY)
 interface BusinessesRepository : JpaRepository<Business, Long>{
-
-    @Query("SELECT b FROM Business b  WHERE b.email = ?1 AND b.password = ?2")
-    fun findByEmailAndPassword( email:String,password:String): Optional<Business>
+    fun findBusinessByEmail(email:String): Optional<Business>
 }

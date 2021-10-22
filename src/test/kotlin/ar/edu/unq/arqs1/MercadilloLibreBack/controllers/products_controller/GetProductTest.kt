@@ -3,8 +3,8 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.BusinessesRepository
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.ProductsRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -28,7 +28,9 @@ class GetProductTest : ApplicationTest() {
 
     @Test
     fun whenTheUserIdIsFromAnExistentProduct_thenReturnsStatus200() {
-        val business = businessesRepository.save(Business(name = "name", email = "email@email.co"))
+        val business = businessesRepository.save(
+            Business(name = "name", email = "email@email.co", encryptedPassword = "sarlanga"))
+
         val product = productsRepository.save(Product(
             name = "name", description = "something",
             price = 10, stock = 10, seller = business,

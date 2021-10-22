@@ -1,7 +1,7 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.services
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.UsersRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.user.UsersRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 

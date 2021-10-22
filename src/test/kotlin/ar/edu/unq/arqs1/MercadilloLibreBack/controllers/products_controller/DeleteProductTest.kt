@@ -4,9 +4,8 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.BusinessesRepository
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.ProductsRepository
-import org.apache.coyote.Response
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +25,9 @@ class DeleteProductTest : ApplicationTest() {
 
     @BeforeEach
     fun setUp() {
-        seller = businessesRepository.save(Business(name = "name", email = "email@email.com"))
+        seller = businessesRepository.save(Business(
+            name = "name", email = "email@email.com", encryptedPassword = "something")
+        )
         product = productsRepository.save(Product(
             name = "product",
             description = "descrption",
@@ -56,8 +57,6 @@ class DeleteProductTest : ApplicationTest() {
         val result = product!!.id?.let { deleteProductRequest(it) }
 
         assertEquals(HttpStatus.OK, result!!.statusCode)
-        assertNotNull(result.body)
-        assertEquals(product!!.id, result.body!!.id)
-        assertFalse(product!!.isActive)
+        assertNull(result.body)
     }
 }

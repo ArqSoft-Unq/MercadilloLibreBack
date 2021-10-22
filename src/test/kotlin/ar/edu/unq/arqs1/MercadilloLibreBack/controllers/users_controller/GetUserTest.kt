@@ -2,7 +2,7 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.UsersRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.user.UsersRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
