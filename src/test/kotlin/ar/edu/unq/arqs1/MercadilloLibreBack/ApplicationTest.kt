@@ -1,6 +1,13 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.DatabaseCleanup
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewUser
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.BusinessLoginResult
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.UserLoginResult
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,6 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -39,4 +50,46 @@ class ApplicationTest {
     fun cleanupDatabase() {
         databaseCleanup.truncate()
     }
+
+    fun loginUser(credentials: Credentials): String =
+        restTemplate.postForEntity("/v1/users/login", credentials, UserLoginResult::class.java ).body!!.jwt
+
+    fun loginBusiness(credentials: Credentials): String =
+        restTemplate.postForEntity("/v1/businesses/login", credentials, BusinessLoginResult::class.java ).body!!.jwt
+
+    fun createUser(newUser: NewUser) =
+        restTemplate.postForEntity("/v1/users", newUser, User::class.java).body!!
+
+    fun createBusiness(newBusiness: NewBusiness) =
+        restTemplate.postForEntity("/v1/businesses", newBusiness, Business::class.java).body!!
+
+    protected fun <T, V> withAuthenticationExchange(
+        url: String,
+        method: HttpMethod,
+        body: V?,
+        responseType: Class<T>,
+        jwt: String
+    ): ResponseEntity<T> {
+        val headers = HttpHeaders()
+        headers.set("Authorization", "Bearer $jwt")
+        val entity = HttpEntity<V>(body, headers)
+
+        return restTemplate.exchange(url, method, entity, responseType)
+    }
+
+    protected fun <T, V> userAuthenticatedExchange(
+        credentials: Credentials,
+        url: String,
+        method: HttpMethod,
+        body: V?,
+        responseType: Class<T>
+    ): ResponseEntity<T> = withAuthenticationExchange(url, method, body, responseType, loginUser(credentials))
+
+    protected fun <T, V> businessAuthenticatedExchange(
+        credentials: Credentials,
+        url: String,
+        method: HttpMethod,
+        body: V?,
+        responseType: Class<T>
+    ): ResponseEntity<T> = withAuthenticationExchange(url, method, body, responseType, loginBusiness(credentials))
 }

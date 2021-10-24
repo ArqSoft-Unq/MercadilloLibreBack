@@ -2,47 +2,54 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
-import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.*
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 
 class DeleteProductTest : ApplicationTest() {
-
-    @Autowired
-    lateinit var businessesRepository: BusinessesRepository
 
     @Autowired
     lateinit var productsRepository: ProductsRepository
 
     private var seller: Business? = null
+    private var credentials: Credentials? = null
     private var product: Product? = null
 
     @BeforeEach
     fun setUp() {
-        seller = businessesRepository.save(Business(
-            name = "name", email = "email@email.com", encryptedPassword = "something")
+        val newBusiness = NewBusiness(name = "name", email = "email@email.com", password = "sarlanga")
+        credentials = Credentials(newBusiness.email, newBusiness.password)
+        seller = createBusiness(newBusiness)
+
+        product = productsRepository.save(
+            Product(
+                name = "product",
+                description = "descrption",
+                price = 10,
+                stock = 10,
+                seller = seller,
+                isActive = true
+            )
         )
-        product = productsRepository.save(Product(
-            name = "product",
-            description = "descrption",
-            price = 10,
-            stock = 10,
-            seller = seller,
-            isActive = true
-        ))
     }
 
-    fun deleteProductRequest(productId: Long): ResponseEntity<Product> {
-        val headers = HttpHeaders()
-        headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val entity = HttpEntity<UpdateProduct>(null, headers)
-        return restTemplate.exchange("/v1/products/${productId}", HttpMethod.DELETE, entity, Product::class.java)
+    fun deleteProductRequest(productId: Long): ResponseEntity<Unit> {
+        return businessAuthenticatedExchange(
+            credentials!!,
+            "/v1/products/${productId}",
+            HttpMethod.DELETE,
+            null,
+            Unit::class.java
+        )
     }
 
     @Test

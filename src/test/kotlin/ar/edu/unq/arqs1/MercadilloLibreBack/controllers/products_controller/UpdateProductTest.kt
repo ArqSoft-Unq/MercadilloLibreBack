@@ -2,15 +2,18 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.products_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.*
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 
 
 class UpdateProductTest : ApplicationTest() {
@@ -18,29 +21,32 @@ class UpdateProductTest : ApplicationTest() {
     @Autowired
     lateinit var productsRepository: ProductsRepository
 
-    @Autowired
-    lateinit var businessesRepository: BusinessesRepository
-
     private var seller: Business? = null
+    private var credentials: Credentials? = null
     private var product: Product? = null
 
     @BeforeEach
     fun setUp() {
-        seller = businessesRepository.save(Business(
-            name = "name", email = "email@email.com", encryptedPassword = "sarlanga")
-        )
+        val newBusiness = NewBusiness(name = "name", email = "email@email.com", password = "sarlanga")
+        credentials = Credentials(newBusiness.email, newBusiness.password)
+        seller = createBusiness(newBusiness)
 
-        product = productsRepository.save(Product(
-            name = "product", description = "descrption",
-            price = 10, stock = 10, seller = seller, isActive = true
-        ))
+        product = productsRepository.save(
+            Product(
+                name = "product", description = "descrption",
+                price = 10, stock = 10, seller = seller, isActive = true
+            )
+        )
     }
 
-    fun updateProductRequest(product: UpdateProduct) : ResponseEntity<Product> {
-        val headers = HttpHeaders()
-        headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val entity = HttpEntity<UpdateProduct>(product, headers)
-        return restTemplate.exchange("/v1/products/${product.id}", HttpMethod.PUT, entity, Product::class.java)
+    fun updateProductRequest(product: UpdateProduct): ResponseEntity<Product> {
+        return businessAuthenticatedExchange(
+            credentials!!,
+            "/v1/products/${product.id}",
+            HttpMethod.PUT,
+            product,
+            Product::class.java
+        )
     }
 
     fun updateProduct(
@@ -49,7 +55,8 @@ class UpdateProductTest : ApplicationTest() {
         description: String? = null,
         price: Int? = null,
         stock: Int? = null,
-        sellerId: Long? = null) =
+        sellerId: Long? = null
+    ) =
 
         UpdateProduct(id, name, description, price, stock)
 

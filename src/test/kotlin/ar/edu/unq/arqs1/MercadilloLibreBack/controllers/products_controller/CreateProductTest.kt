@@ -2,42 +2,41 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.products_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 class CreateProductTest : ApplicationTest() {
 
-    @Autowired
-    final lateinit var businessesRepository: BusinessesRepository
-
     private var seller: Business? = null
+    private var credentials: Credentials? = null
 
     @BeforeEach
     fun setUp() {
-        seller = businessesRepository.save(
-            Business(name = "name", email = "email@email.com", encryptedPassword = "sarlanga")
-        )
+        val newBusiness = NewBusiness(name = "name", email = "email@email.com", password = "sarlanga")
+        credentials = Credentials(newBusiness.email, newBusiness.password)
+        seller = createBusiness(newBusiness)
     }
 
-    fun createProduct(product: NewProduct) : ResponseEntity<Product> =
-        restTemplate.postForEntity("/v1/products", product, Product::class.java)
+    fun createProduct(product: NewProduct): ResponseEntity<Product> =
+        businessAuthenticatedExchange(credentials!!, "/v1/products", HttpMethod.POST, product, Product::class.java)
 
     fun newProduct(
         name: String? = "name",
         description: String? = "description",
         price: Int? = 10,
-        stock: Int? = 10,
-        sellerId: Long? = seller!!.id) =
+        stock: Int? = 10
+    ) =
 
-        NewProduct(name, description, price, stock, sellerId)
+        NewProduct(name, description, price, stock)
 
     @Test
     fun whenTheNameIsMissing_thenReturnsStatus400() {
@@ -60,12 +59,6 @@ class CreateProductTest : ApplicationTest() {
     @Test
     fun whenTheStockIsMissing_thenReturnsStatus400() {
         val result = createProduct(newProduct(stock = null))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
-    }
-
-    @Test
-    fun whenTheSellerIdIsMissing_thenReturnsStatus400() {
-        val result = createProduct(newProduct(sellerId = null))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
@@ -94,13 +87,6 @@ class CreateProductTest : ApplicationTest() {
     }
 
     @Test
-    fun whenSellerIdIsNotFromAnExistentSeller_thenReturnsStatus404() {
-        val sellerId: Long = seller!!.id?.let { seller!!.id } ?: run { 0 }
-        val result = createProduct(newProduct(sellerId = sellerId + 1))
-        assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
-    }
-
-    @Test
     fun whenAllTheFieldsAreValid_thenReturnsStatus200() {
         val newProduct: NewProduct = newProduct()
         val result = createProduct(newProduct)
@@ -112,6 +98,5 @@ class CreateProductTest : ApplicationTest() {
         assertEquals(newProduct.description, result.body!!.description)
         assertEquals(newProduct.price, result.body!!.price)
         assertEquals(newProduct.stock, result.body!!.stock)
-        assertEquals(newProduct.sellerId, result.body!!.seller!!.id)
     }
 }

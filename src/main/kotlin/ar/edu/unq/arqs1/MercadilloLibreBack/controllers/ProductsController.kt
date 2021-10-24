@@ -29,7 +29,7 @@ class ProductsController(private val productsService: ProductService, private va
     fun deleteProduct(@AuthenticationPrincipal business: Business, @PathVariable(value="id") productId: Long): ResponseEntity<Nothing> =
         productsService.getProductById(productId)
             .map { product -> if (product.seller?.id == business.id) {product} else {null} }
-            .map { product -> product?.id?.let { productsService.deleteProduct(it).orElse(null) } }
+            .map { product -> productsService.deleteProduct(product?.id!!).orElse(null) }
             .map { ResponseEntity.ok(null) }
             .orElse(ResponseEntity.notFound().build())
 
@@ -41,7 +41,7 @@ class ProductsController(private val productsService: ProductService, private va
 
         productsService.getProductById(productId)
             .map { product -> if (product.seller?.id == business.id) {product} else {null} }
-            .map { product -> product?.id?.let { productsService.updateProduct(it, updateProduct).orElse(null) } }
+            .map { product -> productsService.updateProduct(product?.id!!, updateProduct).orElse(null) }
             .map {product -> ResponseEntity.ok(product) }
             .orElse(ResponseEntity.notFound().build())
 

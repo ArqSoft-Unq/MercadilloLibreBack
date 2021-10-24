@@ -1,29 +1,25 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewUser
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.user.UsersRepository
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
+import org.springframework.http.*
 
 class GetUserTest : ApplicationTest() {
-
-    @Autowired
-    lateinit var usersRepository: UsersRepository
-
-    @Test
-    fun whenTheUserIdIsNotFromAnExistentUser_thenReturnsStatus404() {
-        val result = restTemplate.getForEntity("/v1/users/1", User::class.java)
-        assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
-    }
-
     @Test
     fun whenTheUserIdIsFromAnExistentUser_thenReturnsStatus200() {
-        val user = usersRepository.save(User(name = "name", lastname = "lastname", email = "email@email.com", encryptedPassword = "asda"))
-        val result = restTemplate.getForEntity("/v1/users/${user.id}", User::class.java)
+        val newUser = NewUser(name = "name", lastname = "lastname", email = "email@email.com", password = "asds")
+        val user = createUser(newUser)
+        val result = userAuthenticatedExchange(
+            Credentials(newUser.email, newUser.password),
+            "/v1/users/info",
+            HttpMethod.GET,
+            null,
+            User::class.java)
 
         assertEquals(HttpStatus.OK, result.statusCode)
         assertNotNull(result.body)

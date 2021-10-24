@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.annotation.Validated
@@ -43,9 +44,9 @@ class BusinessesController(
         return ResponseEntity.ok(businessService.addBusiness(business))
     }
 
-    @GetMapping("/{id}")
-    fun getUser(@PathVariable(value = "id") businessId: Long): ResponseEntity<Business> =
-        businessService.getBusinessById(businessId).map { businesses -> ResponseEntity.ok(businesses) }
+    @GetMapping("/info")
+    fun getUser(@AuthenticationPrincipal business: Business): ResponseEntity<Business> =
+        businessService.getBusinessById(business.id!!).map { businesses -> ResponseEntity.ok(businesses) }
             .orElse(ResponseEntity.notFound().build())
 
 }

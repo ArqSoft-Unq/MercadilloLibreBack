@@ -2,29 +2,28 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 class GetBusinessTest : ApplicationTest() {
 
-    @Autowired
-    lateinit var businessesRepository: BusinessesRepository
-
-    @Test
-    fun whenTheUserIdIsNotFromAnExistentBusiness_thenReturnsStatus404() {
-        val result = restTemplate.getForEntity("/v1/businesses/1", Business::class.java)
-        assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
-    }
-
     @Test
     fun whenTheUserIdIsFromAnExistentBusiness_thenReturnsStatus200() {
-        val business = businessesRepository.save(
-            Business(name = "name", email = "email@email.com", encryptedPassword = "sarlanga"))
-        val result = restTemplate.getForEntity("/v1/businesses/${business.id}", Business::class.java)
+        val newBusiness = NewBusiness(name = "name", email = "email@email.com", password = "asd")
+        val business = createBusiness(newBusiness)
+        val result = businessAuthenticatedExchange(
+            Credentials(newBusiness.email, newBusiness.password),
+            "/v1/businesses/info",
+            HttpMethod.GET,
+            null,
+            Business::class.java)
 
         assertEquals(HttpStatus.OK, result.statusCode)
         assertNotNull(result.body)

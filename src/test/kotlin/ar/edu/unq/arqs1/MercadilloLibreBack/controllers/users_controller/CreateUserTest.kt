@@ -16,48 +16,48 @@ class CreateUserTest : ApplicationTest() {
     @Autowired
     lateinit var userRepository: UsersRepository
 
-    fun createUser(user: NewUser): ResponseEntity<User> =
-        restTemplate.postForEntity("/v1/users", user, User::class.java)
+    fun postUser(newUser: NewUser) =
+        restTemplate.postForEntity("/v1/users", newUser, User::class.java)
 
     @Test
     fun whenTheNameIsMissing_thenReturnsStatus400() {
-        val result = createUser(NewUser(lastname = "lastname", email = "email@email.com", password = "asd"))
+        val result = postUser(NewUser(lastname = "lastname", email = "email@email.com", password = "asd"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenTheLastNameIsMissing_thenReturnsStatus400() {
-        val result = createUser(NewUser(name = "name", email = "email@email.com", password = "asda"))
+        val result = postUser(NewUser(name = "name", email = "email@email.com", password = "asda"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenEmailIsMissing_thenReturnsStatus400() {
-        val result = createUser(NewUser(name = "name", lastname = "lastname", password = "asd"))
+        val result = postUser(NewUser(name = "name", lastname = "lastname", password = "asd"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenTheNameIsBlank_thenReturnsStatus400() {
-        val result = createUser(NewUser(name="", lastname = "lastname", email = "email@email.com", password = "asd"))
+        val result = postUser(NewUser(name="", lastname = "lastname", email = "email@email.com", password = "asd"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenTheLastNameIsBlank_thenReturnsStatus400() {
-        val result = createUser(NewUser(name = "name", lastname = "", email = "email@email.com", password = "asd"))
+        val result = postUser(NewUser(name = "name", lastname = "", email = "email@email.com", password = "asd"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenEmailIsBlank_thenReturnsStatus400() {
-        val result = createUser(NewUser(name = "name", lastname = "lastname", email = "", password = "asd"))
+        val result = postUser(NewUser(name = "name", lastname = "lastname", email = "", password = "asd"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenEmailIsNotAnEmail_thenReturnsStatus400() {
-        val result = createUser(NewUser(name = "name", lastname = "lastname", email = "lala", password = "asda"))
+        val result = postUser(NewUser(name = "name", lastname = "lastname", email = "lala", password = "asda"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
@@ -66,14 +66,14 @@ class CreateUserTest : ApplicationTest() {
         val email = "email@email.com"
         userRepository.save(User(name = "name", lastname = "lastname", email = email, encryptedPassword = "asasd"))
 
-        val result = createUser(NewUser(name = "other name", lastname = "other lastname", email = email, password = "asd"))
+        val result = postUser(NewUser(name = "other name", lastname = "other lastname", email = email, password = "asd"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenAllTheFieldsAreValid_thenReturnsStatus200() {
         val user = NewUser(name = "name", lastname = "lastname", email = "email@email.com", password = "asda")
-        val result = createUser(user)
+        val result = postUser(user)
 
         assertEquals(HttpStatus.OK, result.statusCode)
         assertNotNull(result.body)

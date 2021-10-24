@@ -1,6 +1,7 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.controllers
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.lib.JwtTokenUtil
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewUser
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
@@ -11,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.annotation.Validated
@@ -46,6 +48,6 @@ class UsersController(
         return userService.addUser(user)
     }
 
-    @GetMapping("/{id}")
-    fun getUser(@PathVariable(value = "id") userId: Long): ResponseEntity<User> = userService.getUserById(userId)
+    @GetMapping("/info")
+    fun getUser(@AuthenticationPrincipal user: User): ResponseEntity<User> = userService.getUserById(user.id!!)
 }

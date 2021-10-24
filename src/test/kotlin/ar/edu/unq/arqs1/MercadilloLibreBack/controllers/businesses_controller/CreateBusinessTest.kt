@@ -16,36 +16,36 @@ class CreateBusinessTest : ApplicationTest() {
     @Autowired
     lateinit var businessesRepository: BusinessesRepository
 
-    fun createBusiness(business: NewBusiness): ResponseEntity<Business> =
+    fun postBusiness(business: NewBusiness): ResponseEntity<Business> =
         restTemplate.postForEntity("/v1/businesses", business, Business::class.java)
 
     @Test
     fun whenTheNameIsMissing_thenReturnsStatus400() {
-        val result = createBusiness(NewBusiness(email = "email@email.com"))
+        val result = postBusiness(NewBusiness(email = "email@email.com"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenEmailIsMissing_thenReturnsStatus400() {
-        val result = createBusiness(NewBusiness(name = "name"))
+        val result = postBusiness(NewBusiness(name = "name"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenTheNameIsBlank_thenReturnsStatus400() {
-        val result = createBusiness(NewBusiness(name="", email = "email@email.com"))
+        val result = postBusiness(NewBusiness(name="", email = "email@email.com"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenEmailIsBlank_thenReturnsStatus400() {
-        val result = createBusiness(NewBusiness(name = "name", email = ""))
+        val result = postBusiness(NewBusiness(name = "name", email = ""))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenEmailIsNotAnEmail_thenReturnsStatus400() {
-        val result = createBusiness(NewBusiness(name = "name", email = "lala"))
+        val result = postBusiness(NewBusiness(name = "name", email = "lala"))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
@@ -54,14 +54,14 @@ class CreateBusinessTest : ApplicationTest() {
         val email = "email@email.com"
         businessesRepository.save(Business(name = "name", email = email, encryptedPassword = "sarlanga"))
 
-        val result = createBusiness(NewBusiness(name = "other name", email = email))
+        val result = postBusiness(NewBusiness(name = "other name", email = email))
         assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     }
 
     @Test
     fun whenAllTheFieldsAreValid_thenReturnsStatus200() {
         val business = NewBusiness(name = "name", email = "email@email.com", password="pass")
-        val result = createBusiness(business)
+        val result = postBusiness(business)
 
         assertEquals(HttpStatus.OK, result.statusCode)
         assertNotNull(result.body)
