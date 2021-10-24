@@ -44,12 +44,17 @@ class WebSecurity : WebSecurityConfigurerAdapter(true) {
             .and().authorizeRequests()
                 .antMatchers("/public/**").permitAll()
                 .antMatchers("/manage/**").permitAll()
-                .antMatchers("/v1/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/v1/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/v1/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/v1/**").permitAll()
-                .antMatchers(HttpMethod.DELETE, "/v1/**").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/v1/**").permitAll()
+                .antMatchers(HttpMethod.POST,"/v1/users").permitAll()
+                .antMatchers(HttpMethod.POST,"/v1/users/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/v1/users/*").hasAuthority(USER_AUTHORITY)
+                .antMatchers(HttpMethod.POST,"/v1/businesses").permitAll()
+                .antMatchers(HttpMethod.POST,"/v1/businesses/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/v1/businesses/*").hasAuthority(BUSINESS_AUTHORITY)
+                .antMatchers(HttpMethod.POST,"/v1/products").hasAuthority(BUSINESS_AUTHORITY)
+                .antMatchers(HttpMethod.DELETE,"/v1/products").hasAuthority(BUSINESS_AUTHORITY)
+                .antMatchers(HttpMethod.PUT,"/v1/products").hasAuthority(BUSINESS_AUTHORITY)
+                .antMatchers(HttpMethod.GET,"/v1/products/*").permitAll()
+                .antMatchers(HttpMethod.GET,"/v1/products").permitAll()
             .anyRequest().authenticated().and().anonymous()
             .and().addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
     }
@@ -64,5 +69,10 @@ class WebSecurity : WebSecurityConfigurerAdapter(true) {
         config.addAllowedMethod("*")
         source.registerCorsConfiguration("/**", config)
         return CorsFilter(source)
+    }
+
+    companion object {
+        const val USER_AUTHORITY = "USER_AUTHORITY"
+        const val BUSINESS_AUTHORITY = "BUSINESS_AUTHORITY"
     }
 }

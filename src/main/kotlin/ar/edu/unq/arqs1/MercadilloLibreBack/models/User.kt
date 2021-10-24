@@ -1,5 +1,6 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.models
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.security.WebSecurity.Companion.USER_AUTHORITY
 import com.fasterxml.jackson.annotation.JsonIgnore
 import lombok.Data
 import org.springframework.security.core.GrantedAuthority
@@ -37,7 +38,7 @@ class User (
     override fun getPassword(): String? = encryptedPassword
 
     @JsonIgnore
-    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("read"))
+    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority(USER_AUTHORITY))
 
     @JsonIgnore
     override fun getUsername(): String? = email

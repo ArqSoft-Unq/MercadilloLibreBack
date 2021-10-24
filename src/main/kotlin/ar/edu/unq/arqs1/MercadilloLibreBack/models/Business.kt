@@ -1,8 +1,7 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.models
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.security.WebSecurity.Companion.BUSINESS_AUTHORITY
 import com.fasterxml.jackson.annotation.JsonIgnore
-import lombok.Data
-import lombok.ToString
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -33,7 +32,7 @@ class Business (
     override fun getPassword(): String? = encryptedPassword
 
     @JsonIgnore
-    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority("read"))
+    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority(BUSINESS_AUTHORITY))
 
     @JsonIgnore
     override fun getUsername(): String? = email

@@ -4,6 +4,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.lib.JwtTokenUtil
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewUser
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.LoginResult
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.LoginService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.UserService
 import org.springframework.dao.DataIntegrityViolationException
@@ -31,7 +32,7 @@ class UsersController(
         mapOf("error" to error.message)
 
     @PostMapping("/login")
-    fun login(@RequestBody @Valid credentials: Credentials): ResponseEntity<Unit> {
+    fun login(@RequestBody @Valid credentials: Credentials): ResponseEntity<LoginResult> {
         val userFetcher: (String) -> Optional<UserDetails> =
             { email -> userService.getUserByEmail(email) as Optional<UserDetails> }
         return loginService.doLogin(credentials, userFetcher)
