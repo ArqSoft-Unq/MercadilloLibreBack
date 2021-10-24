@@ -20,9 +20,6 @@ class NewProduct (
     @get:NotNull(message = "The stock is required")
     @get:Min(0)
     var stock: Int? = null,
-
-    @get:NotNull(message = "The seller is required")
-    var sellerId: Long? = null,
 ) {
     fun toProduct(): Product = Product(name = name, description = description, price = price, stock = stock)
 }

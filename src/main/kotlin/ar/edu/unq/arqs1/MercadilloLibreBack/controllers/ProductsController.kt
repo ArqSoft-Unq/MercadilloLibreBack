@@ -1,11 +1,13 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.controllers
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.BusinessService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.ProductService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -15,8 +17,8 @@ import javax.validation.Valid
 @Validated
 class ProductsController(private val productsService: ProductService, private val businessService: BusinessService) {
     @PostMapping
-    fun addProduct(@RequestBody @Valid newProduct: NewProduct): ResponseEntity<Product> {
-        return businessService.getBusinessById(newProduct.sellerId!!).map { business ->
+    fun addProduct(@AuthenticationPrincipal business: Business, @RequestBody @Valid newProduct: NewProduct): ResponseEntity<Product> {
+        return businessService.getBusinessById(business.id!!).map { business ->
             val product = newProduct.toProduct()
             product.seller = business
             ResponseEntity.ok(productsService.addProduct(product))
@@ -24,17 +26,22 @@ class ProductsController(private val productsService: ProductService, private va
     }
 
     @DeleteMapping("/{id}")
-    fun deleteProduct(@PathVariable(value="id") productId: Long): ResponseEntity<Nothing> =
-        productsService.deleteProduct(productId)
+    fun deleteProduct(@AuthenticationPrincipal business: Business, @PathVariable(value="id") productId: Long): ResponseEntity<Nothing> =
+        productsService.getProductById(productId)
+            .map { product -> if (product.seller?.id == business.id) {product} else {null} }
+            .map { product -> product?.id?.let { productsService.deleteProduct(it).orElse(null) } }
             .map { ResponseEntity.ok(null) }
             .orElse(ResponseEntity.notFound().build())
 
     @PutMapping("/{id}")
     fun updateProduct(
+        @AuthenticationPrincipal business: Business,
         @PathVariable(value="id") productId: Long,
         @RequestBody @Valid updateProduct: UpdateProduct): ResponseEntity<Product> =
 
-        productsService.updateProduct(productId, updateProduct)
+        productsService.getProductById(productId)
+            .map { product -> if (product.seller?.id == business.id) {product} else {null} }
+            .map { product -> product?.id?.let { productsService.updateProduct(it, updateProduct).orElse(null) } }
             .map {product -> ResponseEntity.ok(product) }
             .orElse(ResponseEntity.notFound().build())
 
