@@ -22,7 +22,7 @@ class GetUserTest : ApplicationTest() {
 
     @Test
     fun whenTheUserIdIsFromAnExistentUser_thenReturnsStatus200() {
-        val user = usersRepository.save(User(name = "name", lastname = "lastname", email = "email@email.com"))
+        val user = usersRepository.save(User(name = "name", lastname = "lastname", email = "email@email.com", encryptedPassword = "asda"))
         val result = restTemplate.getForEntity("/v1/users/${user.id}", User::class.java)
 
         assertEquals(HttpStatus.OK, result.statusCode)

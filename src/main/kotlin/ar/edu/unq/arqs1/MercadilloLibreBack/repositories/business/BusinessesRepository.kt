@@ -8,7 +8,7 @@ import java.util.*
 import javax.transaction.Transactional
 
 @Repository
-@Transactional(Transactional.TxType.MANDATORY)
+@Transactional
 interface BusinessesRepository : JpaRepository<Business, Long>{
     fun findBusinessByEmail(email:String): Optional<Business>
 }

@@ -26,6 +26,7 @@ class Business (
 
     @get:NotEmpty(message = "The password is required")
     @Column(name = "encrypted_password")
+    @JsonIgnore
     var encryptedPassword: String? = null): UserDetails {
 
     @JsonIgnore
@@ -37,11 +38,15 @@ class Business (
     @JsonIgnore
     override fun getUsername(): String? = email
 
+    @JsonIgnore
     override fun isAccountNonExpired(): Boolean = false
 
+    @JsonIgnore
     override fun isAccountNonLocked(): Boolean = true
 
+    @JsonIgnore
     override fun isCredentialsNonExpired(): Boolean = false
 
+    @JsonIgnore
     override fun isEnabled(): Boolean = true
 }
