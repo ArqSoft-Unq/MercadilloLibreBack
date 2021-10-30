@@ -44,11 +44,7 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter:5.4.2")
 	testImplementation("org.junit.jupiter:junit-jupiter-api")
 	testImplementation("io.mockk:mockk:1.9.3")
-	testImplementation("org.springframework.boot:spring-boot-starter-test") {
-		exclude(module = "junit")
-		exclude(module="junit-vintage-engine")
-		exclude(module = "mockito-core")
-	}
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }

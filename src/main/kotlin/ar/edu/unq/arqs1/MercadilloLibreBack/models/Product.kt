@@ -33,6 +33,9 @@ class Product (
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     var seller: Business? = null,
 
+    @Column(name = "seller_id", insertable = false, updatable = false)
+    var sellerId: Long? = null,
+
     @Column(name="active")
     var isActive: Boolean = true
 )

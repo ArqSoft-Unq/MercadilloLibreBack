@@ -1,15 +1,19 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.services
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.lib.ProductSpecification
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class ProductService(private val productsRepository: ProductsRepository) {
-    fun products(): MutableList<Product> =
-        productsRepository.findAll()
+    fun products(specification: Specification<Product>?): List<Product> {
+        return productsRepository.findAll(specification)
+    }
 
     fun addProduct(product: Product): Product =
         productsRepository.save(product)

@@ -1,15 +1,20 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.controllers
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.lib.ProductSpecificationsBuilder
+import ar.edu.unq.arqs1.MercadilloLibreBack.lib.SearchCriteria
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.ProductsResponse
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.BusinessService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.ProductService
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.util.regex.Pattern
 import javax.validation.Valid
 
 @RestController
@@ -52,6 +57,22 @@ class ProductsController(private val productsService: ProductService, private va
             .orElse(ResponseEntity.notFound().build())
 
     @GetMapping
-    fun allProducts(): ResponseEntity<MutableList<Product>> =
-        ResponseEntity.ok(productsService.products())
+    fun allProducts(
+        @RequestParam(value = "search", required = false) searchParam: Array<String>?): ResponseEntity<ProductsResponse> {
+        val search = searchParam ?: emptyArray()
+        val productSpecificationsBuilder = ProductSpecificationsBuilder()
+        search.map { searchCriteria -> SEARCH_CRITERIA_PATTERN.matcher(searchCriteria) }.forEach { matcher ->
+            if (matcher.find()) {
+                productSpecificationsBuilder.with(
+                    SearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3))
+                )
+            }
+        }
+
+        return ResponseEntity.ok(ProductsResponse(products=productsService.products(productSpecificationsBuilder.build())))
+    }
+
+    companion object {
+        val SEARCH_CRITERIA_PATTERN: Pattern = Pattern.compile("(.+)([:<>])(.+)")
+    }
 }
