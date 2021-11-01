@@ -1,5 +1,6 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.controllers
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.lib.ProductSpecification
 import ar.edu.unq.arqs1.MercadilloLibreBack.lib.ProductSpecificationsBuilder
 import ar.edu.unq.arqs1.MercadilloLibreBack.lib.SearchCriteria
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
@@ -9,7 +10,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.ProductsResponse
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.BusinessService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.ProductService
-import org.springframework.data.domain.PageRequest
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
@@ -23,7 +24,7 @@ import javax.validation.Valid
 class ProductsController(private val productsService: ProductService, private val businessService: BusinessService) {
     @PostMapping
     fun addProduct(@AuthenticationPrincipal business: Business, @RequestBody @Valid newProduct: NewProduct): ResponseEntity<Product> {
-        return businessService.getBusinessById(business.id!!).map { business ->
+        return businessService.getBusinessById(business.id!!).map { ºbusiness ->
             val product = newProduct.toProduct()
             product.seller = business
             ResponseEntity.ok(productsService.addProduct(product))
@@ -58,18 +59,31 @@ class ProductsController(private val productsService: ProductService, private va
 
     @GetMapping
     fun allProducts(
-        @RequestParam(value = "search", required = false) searchParam: Array<String>?): ResponseEntity<ProductsResponse> {
-        val search = searchParam ?: emptyArray()
-        val productSpecificationsBuilder = ProductSpecificationsBuilder()
-        search.map { searchCriteria -> SEARCH_CRITERIA_PATTERN.matcher(searchCriteria) }.forEach { matcher ->
+        @RequestParam(value = "filters", required = false) filtersParam: Array<String>?,
+        @RequestParam(value = "search", required = false) searchParam: String?): ResponseEntity<ProductsResponse> {
+
+        val filters = filtersParam ?: emptyArray()
+        val filtersBuilder = ProductSpecificationsBuilder()
+        filters.map { filter -> SEARCH_CRITERIA_PATTERN.matcher(filter) }.forEach { matcher ->
             if (matcher.find()) {
-                productSpecificationsBuilder.with(
+                filtersBuilder.with(
                     SearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3))
                 )
             }
         }
+        val filtersSpecification = filtersBuilder.build()
 
-        return ResponseEntity.ok(ProductsResponse(products=productsService.products(productSpecificationsBuilder.build())))
+        val searchSpecification = searchParam?.let {
+             Specification.where(ProductSpecification(SearchCriteria("description", ":", searchParam)).or(
+                ProductSpecification(SearchCriteria("name", ":", searchParam))
+            ))
+        }
+
+        val specification = searchSpecification?.let {
+            filtersSpecification?.let { filtersSpecification.and(searchSpecification) }?: searchSpecification
+        }?: filtersSpecification
+
+        return ResponseEntity.ok(ProductsResponse(products=productsService.products(specification)))
     }
 
     companion object {

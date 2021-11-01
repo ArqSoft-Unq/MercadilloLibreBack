@@ -6,7 +6,7 @@ import javax.validation.constraints.Min
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
-@Table(name = "products")
+@Table(name = " products")
 @Entity
 @Data
 class Product (

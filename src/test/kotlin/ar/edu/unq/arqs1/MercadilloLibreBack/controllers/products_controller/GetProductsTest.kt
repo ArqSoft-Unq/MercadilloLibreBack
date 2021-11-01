@@ -6,14 +6,11 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.ProductsResponse
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.business.BusinessesRepository
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
-import org.apache.coyote.Response
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -34,11 +31,11 @@ class GetProductsTest : ApplicationTest() {
         )
     }
 
-    fun doRequest(params: Array<String> = emptyArray()): ResponseEntity<ProductsResponse> =
+    fun doRequest(filters: Array<String> = emptyArray(), search: String = ""): ResponseEntity<ProductsResponse> =
         restTemplate.getForEntity(
-            "/v1/products?search={search}",
+            "/v1/products?filters={filters}&search={search}",
             ProductsResponse::class.java,
-            mapOf("search" to params.joinToString(",") { it })
+            mapOf("filters" to filters.joinToString(",") { it },"search" to search)
         )
 
     @Test
@@ -87,7 +84,7 @@ class GetProductsTest : ApplicationTest() {
     }
 
     @Test
-    fun `searching by more than one criteria`() {
+    fun `filter by more than one criteria`() {
         val product1 = productsRepository.save(
             Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
         )
@@ -106,7 +103,7 @@ class GetProductsTest : ApplicationTest() {
     }
 
     @Test
-    fun `searching by seller`() {
+    fun `filter by seller`() {
         val product1 = productsRepository.save(
             Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
         )
@@ -123,4 +120,62 @@ class GetProductsTest : ApplicationTest() {
         assertThat(product1.id).isIn(productIds)
         assertThat(product2.id).isIn(productIds)
     }
+
+    @Test
+    fun `searching by name`() {
+        val product1 = productsRepository.save(
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+        )
+
+        val product2 = productsRepository.save(
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+        )
+
+        val result = doRequest( search = product1.name!!)
+        val productIds = result.body!!.products?.map { product -> product.id }
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertThat(result.body!!.products).hasSize(1)
+        assertThat(product1.id).isIn(productIds)
+        assertThat(product2.id).isNotIn(productIds)
+    }
+
+    @Test
+    fun `searching by description`() {
+        val product1 = productsRepository.save(
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+        )
+
+        val product2 = productsRepository.save(
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+        )
+
+        val result = doRequest( search = product1.description!!)
+        val productIds = result.body!!.products?.map { product -> product.id }
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertThat(result.body!!.products).hasSize(1)
+        assertThat(product1.id).isIn(productIds)
+        assertThat(product2.id).isNotIn(productIds)
+    }
+
+    @Test
+    fun `searching and filtering by price`() {
+        val product1 = productsRepository.save(
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+        )
+
+        val product2 = productsRepository.save(
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+        )
+
+        val result = doRequest( filters = arrayOf("price:1"), search = "p")
+        val productIds = result.body!!.products?.map { product -> product.id }
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertThat(result.body!!.products).hasSize(1)
+        assertThat(product1.id).isIn(productIds)
+        assertThat(product2.id).isNotIn(productIds)
+    }
+
 }

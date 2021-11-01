@@ -63,7 +63,6 @@ class WebSecurity : WebSecurityConfigurerAdapter(true) {
     fun corsFilter(): CorsFilter? {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
-        config.allowCredentials = true
         config.addAllowedOrigin("*")
         config.addAllowedHeader("*")
         config.addAllowedMethod("*")
