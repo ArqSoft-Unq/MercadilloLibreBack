@@ -18,7 +18,11 @@ class ProductSpecification(private val criteria: SearchCriteria) : Specification
         } else if (criteria.operation.equals(other = ":", ignoreCase = true)) {
             return tryCastToString(root.get<Any>(criteria.key)) { path ->
                 builder.like(path, "%${criteria.value}%")
-            }.orElse(builder.equal(root.get<Any>(criteria.key), criteria.value))
+            }.orElse(
+                tryCastToBool(root.get<Any>(criteria.key)) { path ->
+                    builder.equal(path, criteria.value.toString().toBoolean())
+                }.orElse(builder.equal(root.get<Any>(criteria.key), criteria.value))
+            )
         }
         return null
     }
@@ -26,6 +30,14 @@ class ProductSpecification(private val criteria: SearchCriteria) : Specification
     private inline fun tryCastToString(instance: Path<*>, block: (Path<String>) -> Predicate): Optional<Predicate> {
         return if (instance.javaType.equals(String::class.java)) {
             Optional.of(block(instance as Path<String>))
+        } else {
+            Optional.empty()
+        }
+    }
+
+    private inline fun tryCastToBool(instance: Path<*>, block: (Path<Boolean>) -> Predicate): Optional<Predicate> {
+        return if (instance.javaType.equals(Boolean::class.java)) {
+            Optional.of(block(instance as Path<Boolean>))
         } else {
             Optional.empty()
         }
