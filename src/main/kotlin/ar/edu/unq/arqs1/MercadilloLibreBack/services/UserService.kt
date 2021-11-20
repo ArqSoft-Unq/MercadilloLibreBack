@@ -8,8 +8,7 @@ import java.util.*
 
 @Service
 class UserService(private val usersRepository: UsersRepository) {
-    fun addUser(user: User): ResponseEntity<User> =
-            ResponseEntity.ok(usersRepository.save(user))
+    fun addUser(user: User): User = usersRepository.save(user)
 
     fun getUserById(userId: Long): ResponseEntity<User> =
             usersRepository.findById(userId).map { user -> ResponseEntity.ok(user) }

@@ -47,6 +47,8 @@ class WebSecurity : WebSecurityConfigurerAdapter(true) {
                 .antMatchers(HttpMethod.POST,"/v1/users").permitAll()
                 .antMatchers(HttpMethod.POST,"/v1/users/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/v1/users/info").hasAuthority(USER_AUTHORITY)
+                .antMatchers(HttpMethod.POST, "/v1/users/orders").hasAuthority(USER_AUTHORITY)
+                .antMatchers(HttpMethod.GET, "/v1/users/orders").hasAuthority(USER_AUTHORITY)
                 .antMatchers(HttpMethod.POST,"/v1/businesses").permitAll()
                 .antMatchers(HttpMethod.POST,"/v1/businesses/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/v1/businesses/info").hasAuthority(BUSINESS_AUTHORITY)

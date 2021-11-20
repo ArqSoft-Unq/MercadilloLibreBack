@@ -1,10 +1,8 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.services
 
-import ar.edu.unq.arqs1.MercadilloLibreBack.lib.ProductSpecification
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
-import org.springframework.data.domain.Page
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.util.*

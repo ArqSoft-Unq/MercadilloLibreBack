@@ -15,10 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -51,14 +48,27 @@ class ApplicationTest {
         databaseCleanup.truncate()
     }
 
-    fun loginUser(credentials: Credentials): String =
-        restTemplate.postForEntity("/v1/users/login", credentials, UserLoginResult::class.java ).body!!.jwt
+    fun loginUser(credentials: Credentials): String {
+        val result = restTemplate.postForEntity("/v1/users/login", credentials, UserLoginResult::class.java )
+        assert(result.statusCode == HttpStatus.OK)
+        return result.body!!.jwt
+    }
 
     fun loginBusiness(credentials: Credentials): String =
         restTemplate.postForEntity("/v1/businesses/login", credentials, BusinessLoginResult::class.java ).body!!.jwt
 
-    fun createUser(newUser: NewUser) =
-        restTemplate.postForEntity("/v1/users", newUser, User::class.java).body!!
+    fun createUser(newUser: NewUser): User {
+        val result = restTemplate.postForEntity("/v1/users", newUser, User::class.java)
+        assert(result.statusCode == HttpStatus.OK)
+        return result.body!!
+    }
+
+    fun createAUser(): Credentials {
+        val newUser = NewUser(name = "name", lastname = "lala", email = "email@email.com", password = "sarlanga")
+        val credentials = Credentials(newUser.email, newUser.password)
+        this.createUser(newUser)
+        return credentials
+    }
 
     fun createBusiness(newBusiness: NewBusiness) =
         restTemplate.postForEntity("/v1/businesses", newBusiness, Business::class.java).body!!

@@ -45,7 +45,7 @@ class UsersController(
         val user = newUser.toUser()
         user.encryptedPassword = passwordEncoder.encode(newUser.password)
 
-        return userService.addUser(user)
+        return ResponseEntity.ok(userService.addUser(user))
     }
 
     @GetMapping("/info")
