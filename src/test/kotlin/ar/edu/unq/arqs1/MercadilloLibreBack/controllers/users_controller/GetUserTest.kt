@@ -2,30 +2,28 @@ package ar.edu.unq.arqs1.MercadilloLibreBack.controllers.users_controller
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.ApplicationTest
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewUser
-import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Test
-import org.springframework.http.*
+import org.springframework.http.HttpMethod
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 class GetUserTest : ApplicationTest() {
     @Test
     fun whenTheUserIdIsFromAnExistentUser_thenReturnsStatus200() {
         val newUser = NewUser(name = "name", lastname = "lastname", email = "email@email.com", password = "asds")
         val user = createUser(newUser)
-        val result = userAuthenticatedExchange(
+        userAuthenticatedExchange(
             Credentials(newUser.email, newUser.password),
             "/v1/users/info",
             HttpMethod.GET,
-            null,
-            User::class.java)
-
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertNotNull(result.body)
-        assertEquals(user.id, result.body!!.id)
-        assertEquals(user.name, result.body!!.name)
-        assertEquals(user.lastname, result.body!!.lastname)
-        assertEquals(user.email, result.body!!.email)
+            null
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.`is`(user.id!!.toInt())))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.`is`(user.name)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.lastname", CoreMatchers.`is`(user.lastname)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.`is`(user.email)))
     }
 }

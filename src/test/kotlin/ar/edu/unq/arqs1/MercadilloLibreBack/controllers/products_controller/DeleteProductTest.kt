@@ -6,6 +6,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
+import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 class DeleteProductTest : ApplicationTest() {
 
@@ -21,7 +24,6 @@ class DeleteProductTest : ApplicationTest() {
     lateinit var productsRepository: ProductsRepository
 
     private var seller: Business? = null
-    private var credentials: Credentials? = null
     private var product: Product? = null
 
     @BeforeEach
@@ -36,34 +38,31 @@ class DeleteProductTest : ApplicationTest() {
                 description = "descrption",
                 price = 10,
                 stock = 10,
-                seller = seller,
+                seller = seller!!,
                 isActive = true
             )
         )
     }
 
-    fun deleteProductRequest(productId: Long): ResponseEntity<Unit> {
+    fun deleteProductRequest(productId: Long): ResultActions {
         return businessAuthenticatedExchange(
             credentials!!,
             "/v1/products/${productId}",
             HttpMethod.DELETE,
-            null,
-            Unit::class.java
+            null
         )
     }
 
     @Test
     fun whenTheUserIdIsNotFromAnExistentProduct_thenReturnsStatus404() {
-        val result = deleteProductRequest(product!!.id?.plus(1) ?: 0)
-        assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
+        deleteProductRequest(product!!.id?.plus(1) ?: 0)
+            .andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 
 
     @Test
     fun whenTheUserIdIsFromAnExistentProduct_thenReturnsStatus200() {
-        val result = product!!.id?.let { deleteProductRequest(it) }
-
-        assertEquals(HttpStatus.OK, result!!.statusCode)
-        assertNull(result.body)
+        deleteProductRequest(productId = product!!.id!!)
+            .andExpect(MockMvcResultMatchers.status().isOk)
     }
 }

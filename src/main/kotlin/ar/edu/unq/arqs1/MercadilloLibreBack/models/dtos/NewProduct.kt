@@ -21,5 +21,6 @@ class NewProduct (
     @get:Min(0)
     var stock: Int? = null,
 ) {
-    fun toProduct(): Product = Product(name = name, description = description, price = price, stock = stock)
+    fun toProduct(seller: Business): Product =
+        Product(name = name!!, description = description!!, price = price!!, stock = stock!!, seller = seller)
 }

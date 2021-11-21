@@ -21,10 +21,10 @@ class ProductService(private val productsRepository: ProductsRepository) {
 
     fun updateProduct(id: Long, product: UpdateProduct): Optional<Product> {
         return getProductById(id).map { existentProduct ->
-            if(product.name != null) { existentProduct.name = product.name }
-            if(product.description != null) { existentProduct.description = product.description }
-            if(product.price != null) { existentProduct.price = product.price }
-            if(product.stock != null) { existentProduct.stock = product.stock }
+            if(product.name != null) { existentProduct.name = product.name!! }
+            if(product.description != null) { existentProduct.description = product.description!! }
+            if(product.price != null) { existentProduct.price = product.price!! }
+            if(product.stock != null) { existentProduct.stock = product.stock!! }
 
             productsRepository.save(existentProduct)
             existentProduct

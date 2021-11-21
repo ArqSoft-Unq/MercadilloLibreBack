@@ -34,7 +34,7 @@ class ProductsRepositoryTest {
                 description = "nice book",
                 price = 10,
                 stock = 10,
-                seller = seller
+                seller = seller!!
             )
         )
         oboe = repository.save(
@@ -43,7 +43,7 @@ class ProductsRepositoryTest {
                 description = "nice oboe",
                 price = 100,
                 stock = 2,
-                seller = seller
+                seller = seller!!
             )
         )
     }

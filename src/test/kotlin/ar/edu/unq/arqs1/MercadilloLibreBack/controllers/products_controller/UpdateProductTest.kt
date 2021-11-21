@@ -7,6 +7,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
+import org.hamcrest.CoreMatchers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 
 class UpdateProductTest : ApplicationTest() {
@@ -22,7 +25,6 @@ class UpdateProductTest : ApplicationTest() {
     lateinit var productsRepository: ProductsRepository
 
     private var seller: Business? = null
-    private var credentials: Credentials? = null
     private var product: Product? = null
 
     @BeforeEach
@@ -34,18 +36,17 @@ class UpdateProductTest : ApplicationTest() {
         product = productsRepository.save(
             Product(
                 name = "product", description = "descrption",
-                price = 10, stock = 10, seller = seller, isActive = true
+                price = 10, stock = 10, seller = seller!!, isActive = true
             )
         )
     }
 
-    fun updateProductRequest(product: UpdateProduct): ResponseEntity<Product> {
+    fun updateProductRequest(product: UpdateProduct): ResultActions {
         return businessAuthenticatedExchange(
             credentials!!,
             "/v1/products/${product.id}",
             HttpMethod.PUT,
-            product,
-            Product::class.java
+            product
         )
     }
 
@@ -62,65 +63,69 @@ class UpdateProductTest : ApplicationTest() {
 
     @Test
     fun whenNameIsEmpty_thenReturnsStatus400() {
-        val result = updateProductRequest(updateProduct(name = ""))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        updateProductRequest(updateProduct(name = ""))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun whenDescriptionIsEmpty_thenReturnsStatus400() {
-        val result = updateProductRequest(updateProduct(description = ""))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        updateProductRequest(updateProduct(description = ""))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun whenPriceIsBellow0_thenReturnsStatus400() {
-        val result = updateProductRequest(updateProduct(price = -1))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        updateProductRequest(updateProduct(price = -1))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun whenStockIsBellow0_thenReturnsStatus400() {
-        val result = updateProductRequest(updateProduct(stock = -1))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        updateProductRequest(updateProduct(stock = -1))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun updatesTheName() {
         val newName = "new name"
-        val result = updateProductRequest(updateProduct(name = newName))
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals(newName, result.body!!.name)
+        updateProductRequest(updateProduct(name = newName))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name", CoreMatchers.`is`(newName)))
     }
 
     @Test
     fun updatesTheDescription() {
         val newDescription = "new description"
-        val result = updateProductRequest(updateProduct(description = newDescription))
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals(newDescription, result.body!!.description)
+        updateProductRequest(updateProduct(description = newDescription))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description", CoreMatchers.`is`(newDescription)))
     }
 
     @Test
     fun updatesTheStock() {
         val newStock = 1
-        val result = updateProductRequest(updateProduct(stock = newStock))
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals(newStock, result.body!!.stock)
+        updateProductRequest(updateProduct(stock = newStock))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.stock", CoreMatchers.`is`(newStock)))
     }
 
     @Test
     fun updatesThePrice() {
         val newPrice = 100000
-        val result = updateProductRequest(updateProduct(price = newPrice))
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertEquals(newPrice, result.body!!.price)
+        updateProductRequest(updateProduct(price = newPrice))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.price", CoreMatchers.`is`(newPrice)))
     }
 
     @Test
     fun whenTheProductIdIsDoesNotExists_thenReturns404() {
         val updateProduct = updateProduct()
         updateProduct.id = product!!.id?.plus(1)
-        val result = updateProductRequest(updateProduct)
-        assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
+        updateProductRequest(updateProduct)
+            .andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 }

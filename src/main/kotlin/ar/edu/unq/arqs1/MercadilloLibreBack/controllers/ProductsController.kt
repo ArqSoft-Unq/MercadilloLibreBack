@@ -24,9 +24,8 @@ import javax.validation.Valid
 class ProductsController(private val productsService: ProductService, private val businessService: BusinessService) {
     @PostMapping
     fun addProduct(@AuthenticationPrincipal business: Business, @RequestBody @Valid newProduct: NewProduct): ResponseEntity<Product> {
-        return businessService.getBusinessById(business.id!!).map { ºbusiness ->
-            val product = newProduct.toProduct()
-            product.seller = business
+        return businessService.getBusinessById(business.id!!).map { business ->
+            val product = newProduct.toProduct(business)
             ResponseEntity.ok(productsService.addProduct(product))
         }.orElse(ResponseEntity.notFound().build())
     }

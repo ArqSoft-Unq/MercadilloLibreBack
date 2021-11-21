@@ -48,11 +48,11 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `when exists some products without filter return all products`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
         val result = doRequest()
@@ -67,11 +67,11 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `when exists some products and filter by name return filtered products`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
         val result = doRequest(arrayOf("name:p1"))
@@ -86,11 +86,11 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `filter by more than one criteria`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
         val result = doRequest(arrayOf("name:p", "price<2"))
@@ -105,11 +105,11 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `filter by seller`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
         val result = doRequest(arrayOf("sellerId:${business!!.id}"))
@@ -124,11 +124,11 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `searching by name`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
         val result = doRequest( search = product1.name!!)
@@ -143,14 +143,14 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `searching by description`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
-        val result = doRequest( search = product1.description!!)
+        val result = doRequest( search = product1.description)
         val productIds = result.body!!.products?.map { product -> product.id }
 
         assertEquals(HttpStatus.OK, result.statusCode)
@@ -162,11 +162,11 @@ class GetProductsTest : ApplicationTest() {
     @Test
     fun `searching and filtering by price`() {
         val product1 = productsRepository.save(
-            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business)
+            Product(name = "p1", description = "product 1", price = 1, stock = 1, seller = business!!)
         )
 
         val product2 = productsRepository.save(
-            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business)
+            Product(name = "p2", description = "product 2", price = 2, stock = 2, seller = business!!)
         )
 
         val result = doRequest( filters = arrayOf("price:1"), search = "p")

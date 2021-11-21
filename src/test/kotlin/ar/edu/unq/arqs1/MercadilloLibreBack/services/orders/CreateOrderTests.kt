@@ -31,7 +31,7 @@ class CreateOrderTests: ApplicationTest(){
 
     @Test
     fun `creates the order correctly`() {
-        var newOrder = ordersService.addOrder(user!!)
+        val newOrder = ordersService.addOrder(user!!)
 
         assertTrue(ordersRepository.existsById(newOrder.id!!))
         assertEquals(Order.Status.PENDING.code, newOrder.status)

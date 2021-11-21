@@ -1,16 +1,15 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack
 
 import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.DatabaseCleanup
-import ar.edu.unq.arqs1.MercadilloLibreBack.models.Business
-import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
-import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewUser
-import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.*
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.BusinessLoginResult
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.UserLoginResult
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -18,6 +17,9 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(
@@ -27,6 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
         properties = []
 )
 @ActiveProfiles(value = ["test"])
+@AutoConfigureMockMvc
 class ApplicationTest {
 
     @Autowired
@@ -42,6 +45,14 @@ class ApplicationTest {
     internal class ControllerTestConfig {
         //Here we should add all the beans that we'll need only for testing
     }
+
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
+
+    var credentials: Credentials? = null
 
     @AfterEach
     fun cleanupDatabase() {
@@ -73,33 +84,58 @@ class ApplicationTest {
     fun createBusiness(newBusiness: NewBusiness) =
         restTemplate.postForEntity("/v1/businesses", newBusiness, Business::class.java).body!!
 
-    protected fun <T, V> withAuthenticationExchange(
+    protected fun <V> withAuthenticationExchange(
         url: String,
         method: HttpMethod,
         body: V?,
-        responseType: Class<T>,
         jwt: String
-    ): ResponseEntity<T> {
-        val headers = HttpHeaders()
-        headers.set("Authorization", "Bearer $jwt")
-        val entity = HttpEntity<V>(body, headers)
-
-        return restTemplate.exchange(url, method, entity, responseType)
+    ): ResultActions {
+        return mockMvc.perform(
+            MockMvcRequestBuilders.request(method, url)
+                .header("Authorization", "Bearer $jwt")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body))
+        )
     }
 
-    protected fun <T, V> userAuthenticatedExchange(
-        credentials: Credentials,
+    protected fun <V> exchange(
         url: String,
         method: HttpMethod,
-        body: V?,
-        responseType: Class<T>
-    ): ResponseEntity<T> = withAuthenticationExchange(url, method, body, responseType, loginUser(credentials))
+        body: V?
+    ): ResultActions {
+        return mockMvc.perform(
+            MockMvcRequestBuilders.request(method, url)
+                .content(objectMapper.writeValueAsString(body))
+        )
+    }
 
-    protected fun <T, V> businessAuthenticatedExchange(
+    protected fun <V> userAuthenticatedExchange(
+        credentials: Credentials,
+        url: String,
+        method: HttpMethod,
+        body: V?
+    ): ResultActions = withAuthenticationExchange(url, method, body, loginUser(credentials))
+
+    protected fun <V> businessAuthenticatedExchange(
         credentials: Credentials,
         url: String,
         method: HttpMethod,
         body: V?,
-        responseType: Class<T>
-    ): ResponseEntity<T> = withAuthenticationExchange(url, method, body, responseType, loginBusiness(credentials))
+    ): ResultActions = withAuthenticationExchange(url, method, body, loginBusiness(credentials))
+
+    fun postOrder(authenticated: Boolean): ResultActions =
+        if (authenticated) {
+            userAuthenticatedExchange(credentials!!, "/v1/orders", HttpMethod.POST, null)
+        } else {
+            exchange("/v1/orders", HttpMethod.POST, null)
+        }
+
+    fun createOrder(credentials: Credentials): Order {
+        val headers = HttpHeaders()
+        headers.set("Authorization", "Bearer ${loginUser(credentials)}")
+        val entity = HttpEntity<Order>(null, headers)
+
+        return restTemplate.exchange("/v1/orders", HttpMethod.POST, entity, Order::class.java).body!!
+}
 }

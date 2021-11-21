@@ -6,6 +6,8 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewBusiness
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -13,11 +15,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class CreateProductTest : ApplicationTest() {
 
     private var seller: Business? = null
-    private var credentials: Credentials? = null
 
     @BeforeEach
     fun setUp() {
@@ -26,8 +30,8 @@ class CreateProductTest : ApplicationTest() {
         seller = createBusiness(newBusiness)
     }
 
-    fun createProduct(product: NewProduct): ResponseEntity<Product> =
-        businessAuthenticatedExchange(credentials!!, "/v1/products", HttpMethod.POST, product, Product::class.java)
+    fun createProduct(product: NewProduct): ResultActions =
+        businessAuthenticatedExchange(credentials!!, "/v1/products", HttpMethod.POST, product)
 
     fun newProduct(
         name: String? = "name",
@@ -40,63 +44,62 @@ class CreateProductTest : ApplicationTest() {
 
     @Test
     fun whenTheNameIsMissing_thenReturnsStatus400() {
-        val result = createProduct(newProduct(name = null))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(name = null))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenTheDescriptionIsMissing_thenReturnsStatus400() {
-        val result = createProduct(newProduct(description = null))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(description = null))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenThePriceIsMissing_thenReturnsStatus400() {
-        val result = createProduct(newProduct(price = null))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(price = null))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenTheStockIsMissing_thenReturnsStatus400() {
-        val result = createProduct(newProduct(stock = null))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(stock = null))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenTheNameIsBlank_thenReturnsStatus400() {
-        val result = createProduct(newProduct(name = ""))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(name = ""))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenTheDescriptionBlank_thenReturnsStatus400() {
-        val result = createProduct(newProduct(description = ""))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(description = ""))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenPriceIsBellow0_thenReturnsStatus400() {
-        val result = createProduct(newProduct(price = -1))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(price = -1))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenStockIsBellow0_thenReturnsStatus400() {
-        val result = createProduct(newProduct(stock = -1))
-        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        createProduct(newProduct(stock = -1))
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun whenAllTheFieldsAreValid_thenReturnsStatus200() {
         val newProduct: NewProduct = newProduct()
-        val result = createProduct(newProduct)
-
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertNotNull(result.body)
-        assertNotNull(result.body!!.id)
-        assertEquals(newProduct.name, result.body!!.name)
-        assertEquals(newProduct.description, result.body!!.description)
-        assertEquals(newProduct.price, result.body!!.price)
-        assertEquals(newProduct.stock, result.body!!.stock)
+        createProduct(newProduct)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$", notNullValue()))
+            .andExpect(jsonPath("$.id", notNullValue()))
+            .andExpect(jsonPath("$.name", `is`(newProduct.name)))
+            .andExpect(jsonPath("$.description", `is`(newProduct.description)))
+            .andExpect(jsonPath("$.price", `is`(newProduct.price)))
+            .andExpect(jsonPath("$.stock", `is`(newProduct.stock)))
     }
 }
