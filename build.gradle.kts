@@ -36,6 +36,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("org.apache.httpcomponents:httpclient")
+	implementation("org.springframework.boot:spring-boot-starter-batch")
+	implementation("org.springframework.kafka:spring-kafka")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
