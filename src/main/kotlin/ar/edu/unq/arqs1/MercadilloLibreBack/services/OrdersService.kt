@@ -7,10 +7,14 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.order.OrdersRepository
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
 import org.springframework.data.domain.Example
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import javax.persistence.LockModeType
 
 @Service
+@Transactional
 class OrdersService(val ordersRepository: OrdersRepository, val productsRepository: ProductsRepository) {
     fun addOrder(user: User): Order {
         return ordersRepository.findOne(Example.of(Order(buyer = user)))
@@ -20,6 +24,7 @@ class OrdersService(val ordersRepository: OrdersRepository, val productsReposito
     fun orders(buyer: User) =
         ordersRepository.findOrdersByBuyer(buyer)
 
+    @Lock(LockModeType.PESSIMISTIC_READ)
     fun charge(order: Order): Result<Order> {
         return try {
             validateOrder(order)

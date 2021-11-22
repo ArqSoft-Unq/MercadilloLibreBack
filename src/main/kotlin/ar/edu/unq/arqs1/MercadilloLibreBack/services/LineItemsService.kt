@@ -5,6 +5,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.Order
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.line_item.LineItemRepository
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class LineItemsService(val lineItemRepository: LineItemRepository) {
@@ -57,5 +58,9 @@ class LineItemsService(val lineItemRepository: LineItemRepository) {
         if (!product.canSupplyStockFor(quantity)) {
             throw Product.MissingStock()
         }
+    }
+
+    fun findById(lineItemId: Long): Optional<LineItem> {
+        return lineItemRepository.findById(lineItemId)
     }
 }

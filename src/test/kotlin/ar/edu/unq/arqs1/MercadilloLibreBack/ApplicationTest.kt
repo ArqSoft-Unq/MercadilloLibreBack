@@ -4,6 +4,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.DatabaseCleanup
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.*
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.BusinessLoginResult
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.Credentials
+import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.NewLineItem
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.UserLoginResult
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
@@ -74,8 +75,8 @@ class ApplicationTest {
         return result.body!!
     }
 
-    fun createAUser(): Credentials {
-        val newUser = NewUser(name = "name", lastname = "lala", email = "email@email.com", password = "sarlanga")
+    fun createAUser(email: String = "email@email.com"): Credentials {
+        val newUser = NewUser(name = "name", lastname = "lala", email = email, password = "sarlanga")
         val credentials = Credentials(newUser.email, newUser.password)
         this.createUser(newUser)
         return credentials
@@ -138,4 +139,7 @@ class ApplicationTest {
 
         return restTemplate.exchange("/v1/orders", HttpMethod.POST, entity, Order::class.java).body!!
 }
+
+    fun createLineItem(lineItem: NewLineItem): ResultActions =
+        userAuthenticatedExchange(credentials!!, "/v1/lineItems", HttpMethod.POST, lineItem)
 }
