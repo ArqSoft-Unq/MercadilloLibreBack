@@ -1,5 +1,6 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.models
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import lombok.Data
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -19,7 +20,7 @@ class Order(
 
     var  status: String = Status.PENDING.code,
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     var lineItems: List<LineItem> = emptyList()
 ){
     fun charge() {
@@ -32,6 +33,11 @@ class Order(
 
     fun isEmpty(): Boolean {
         return lineItems.isEmpty()
+    }
+
+    @JsonProperty("total")
+    fun total(): Int {
+        return lineItems.sumOf { lineItem -> lineItem.itemPrice() }
     }
 
     enum class Status(val code: String) {

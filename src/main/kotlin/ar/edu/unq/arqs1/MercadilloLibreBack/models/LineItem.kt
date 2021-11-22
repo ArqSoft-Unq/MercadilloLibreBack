@@ -1,6 +1,7 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.models
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import lombok.Data
 import javax.persistence.*
 import javax.validation.constraints.Min
@@ -33,6 +34,11 @@ class LineItem (
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     var  product: Product
     ) {
+
+    @JsonProperty("itemPrice")
+    fun itemPrice(): Int {
+        return price * quantity
+    }
 
     class ProductDeactivated: Exception("The product is deactivated")
 }

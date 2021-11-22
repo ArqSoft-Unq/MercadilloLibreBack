@@ -6,7 +6,6 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.LineItem
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Order
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.UpdateLineItem
-import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.line_item.LineItemRepository
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.BusinessService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.LineItemsService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.OrdersService
