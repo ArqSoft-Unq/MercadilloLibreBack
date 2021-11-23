@@ -1,13 +1,16 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.services
 
+import ar.edu.unq.arqs1.MercadilloLibreBack.configuration.orderChargedTopic
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.LineItem
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Order
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.User
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.order.OrdersRepository
 import ar.edu.unq.arqs1.MercadilloLibreBack.repositories.product.ProductsRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.domain.Example
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -15,7 +18,11 @@ import javax.persistence.LockModeType
 
 @Service
 @Transactional
-class OrdersService(val ordersRepository: OrdersRepository, val productsRepository: ProductsRepository) {
+class OrdersService(
+    val ordersRepository: OrdersRepository,
+    val productsRepository: ProductsRepository,
+    val kafkaTemplate: KafkaTemplate<String, String>
+) {
     fun addOrder(user: User): Order {
         return ordersRepository.findOne(Example.of(Order(buyer = user)))
             .orElseGet { ordersRepository.save(Order(buyer = user)) }
@@ -32,9 +39,25 @@ class OrdersService(val ordersRepository: OrdersRepository, val productsReposito
 
             order.charge()
             removeStock(order.lineItems)
-            Result.success(ordersRepository.save(order))
+            val chargedOrder = ordersRepository.save(order)
+            registerEvent(chargedOrder)
+            Result.success(chargedOrder)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private fun registerEvent(chargedOrder: Order) {
+        kafkaTemplate.send(orderChargedTopic, OrderChargedMessage(chargedOrder).toJson())
+    }
+
+    class OrderChargedMessage(val order: Order) {
+        fun toJson(): String {
+            return ObjectMapper().writeValueAsString(mapOf(
+              "orderId" to order.id,
+                "total" to order.total(),
+                "buyerId" to order.buyer.id
+            ))
         }
     }
 

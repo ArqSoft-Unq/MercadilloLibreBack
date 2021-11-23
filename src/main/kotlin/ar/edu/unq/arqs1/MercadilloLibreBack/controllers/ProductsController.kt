@@ -9,6 +9,7 @@ import ar.edu.unq.arqs1.MercadilloLibreBack.models.NewProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.Product
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.UpdateProduct
 import ar.edu.unq.arqs1.MercadilloLibreBack.models.dtos.ProductsResponse
+import ar.edu.unq.arqs1.MercadilloLibreBack.services.BulkCreateProcessor
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.BusinessService
 import ar.edu.unq.arqs1.MercadilloLibreBack.services.ProductService
 import org.springframework.data.jpa.domain.Specification
@@ -27,7 +28,7 @@ import javax.validation.Valid
 class ProductsController(
     private val productsService: ProductService,
     private val businessService: BusinessService,
-    private val kafkaTemplate: KafkaTemplate<String, String>
+    private val bulkCreateProcessor: BulkCreateProcessor
 ) {
     @PostMapping
     fun addProduct(
@@ -116,7 +117,7 @@ class ProductsController(
 
     @PostMapping("/bulkCreate")
     fun bulkCreate(@AuthenticationPrincipal business: Business, @RequestParam("file") file: MultipartFile) {
-        kafkaTemplate.send(newProductsTopic, "culo")
+        bulkCreateProcessor.process(business, file)
     }
 
     companion object {

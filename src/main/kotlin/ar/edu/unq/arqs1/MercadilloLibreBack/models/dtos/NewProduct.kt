@@ -1,5 +1,6 @@
 package ar.edu.unq.arqs1.MercadilloLibreBack.models
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.Data
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotEmpty
@@ -23,4 +24,14 @@ class NewProduct (
 ) {
     fun toProduct(seller: Business): Product =
         Product(name = name!!, description = description!!, price = price!!, stock = stock!!, seller = seller)
+
+    fun toJson(seller: Business): String {
+        return ObjectMapper().writeValueAsString(mapOf(
+            "sellerId" to seller.id,
+            "name" to name,
+            "description" to description,
+            "price" to price,
+            "stock" to stock
+        ))
+    }
 }

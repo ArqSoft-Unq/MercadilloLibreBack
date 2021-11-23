@@ -18,7 +18,8 @@ services:
         "spring.datasource.username":"postgres",
         "spring.datasource.password":"postgres",
         "spring.jpa.properties.hibernate.dialect":"org.hibernate.dialect.PostgreSQLDialect",
-        "spring.jpa.hibernate.ddl-auto":"update"
+        "spring.jpa.hibernate.ddl-auto":"update",
+        "spring.kafka.bootstrap-servers=kafka":"29092"
       }'
     command: 'gradle bootRun'
   db:
